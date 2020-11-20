@@ -7,6 +7,10 @@ import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.service.ServiceRegistry;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import java.util.List;
+
 
 public class Application {
     // Hold a reusable reference to a SessionFactory (since we need only one)
@@ -25,6 +29,42 @@ public class Application {
                 .withPhone(123456789L)
                 .build();
 
+        save(contact);
+
+        // Display a list of contacts
+        fetchAllContacts().stream()
+                .forEach(System.out::println);
+    }
+
+    private static List<Contact> fetchAllContacts() {
+        // Open a session
+        Session session = sessionFactory.openSession();
+
+        // DEPRECATED: Create Criteria
+        // Criteria criteria = session.createCriteria(Contact.class);
+
+        // DEPRECATED: Get a list of Contact objects according to the Criteria object
+        // List<Contact> contacts = criteria.list();
+
+        // UPDATED: Create CriteriaBuilder
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+
+        // UPDATED: Create CriteriaQuery
+        CriteriaQuery<Contact> criteria = builder.createQuery(Contact.class);
+
+        // UPDATED: Specify criteria root
+        criteria.from(Contact.class);
+
+        // UPDATED: Execute query
+        List<Contact> contacts = session.createQuery(criteria).getResultList();
+
+        // Close the session
+        session.close();
+
+        return contacts;
+    }
+
+    private static void save(Contact contact) {
         // Open a session
         Session session = sessionFactory.openSession();
 

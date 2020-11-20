@@ -7,7 +7,7 @@
         <!-- SQL dialect -->
         <property name="dialect">org.hibernate.dialect.H2Dialect</property>
 
-        <!-- Create the database schema on startup
+        <!-- Update the database schema on startup
          hbm2ddl stands for 'hibernate mapping to data definition language'-->
         <property name="hbm2ddl.auto">update</property>
 
