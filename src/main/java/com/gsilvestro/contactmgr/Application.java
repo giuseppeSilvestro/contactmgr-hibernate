@@ -29,11 +29,40 @@ public class Application {
                 .withPhone(123456789L)
                 .build();
 
-        save(contact);
+        int id = save(contact);
 
-        // Display a list of contacts
+        // Display a list of contacts before the update
+        System.out.printf("%n%nBefore update%n%n");
         fetchAllContacts().stream()
                 .forEach(System.out::println);
+
+        // Get the persisted contact
+        Contact contact1 =findContactById(id);
+
+        // Update the contact
+        contact1.setFirstName("Gennaro");
+
+        // Persist the changes
+        System.out.printf("%n%nUpdating...%n%n");
+        update(contact1);
+        System.out.printf("%n%nUpdate complete!%n%n");
+
+        //Display a list of contacts after the update
+        System.out.printf("%n%nAfter the update%n%n");
+        fetchAllContacts().stream()
+                .forEach(System.out::println);
+
+        // Before running check which ids are present in the database
+//        System.out.printf("%n%nDeleting the contact with id of 2");
+//        Contact toBeDeleted = fetchAllContacts().stream()
+//                .filter(e -> e.getId() == 2)
+//                .findFirst()
+//                .orElse(null);
+//        delete(toBeDeleted);
+//
+//        System.out.printf("%n%nAfter the delete");
+//        fetchAllContacts().stream()
+//                .forEach(System.out::println);
     }
 
     private static List<Contact> fetchAllContacts() {
@@ -64,7 +93,7 @@ public class Application {
         return contacts;
     }
 
-    private static void save(Contact contact) {
+    private static int save(Contact contact) {
         // Open a session
         Session session = sessionFactory.openSession();
 
@@ -73,7 +102,7 @@ public class Application {
         session.beginTransaction();
 
         // Use the session to save the contact
-        session.save(contact);
+        int id = (int)session.save(contact);
 
         // Commit the transaction
         // In the hibernate.cfg.xml we have added a property 'show_sql' and set it to 'true'
@@ -82,5 +111,39 @@ public class Application {
 
         // Close the session
         session.close();
+
+        return id;
     }
+
+    private static Contact findContactById(int id) {
+        Session session = sessionFactory.openSession();
+
+        Contact contact = session.get(Contact.class, id);
+
+        session.close();
+
+        return contact;
+    }
+
+    private static void update(Contact contact) {
+        Session session = sessionFactory.openSession();
+
+        session.beginTransaction();
+
+        session.update(contact);
+
+        session.getTransaction().commit();
+
+        session.close();
+
+    }
+
+    private static void delete(Contact contact) {
+        Session session = sessionFactory.openSession();
+        session.beginTransaction();
+        session.delete(contact);
+        session.getTransaction().commit();
+        session.close();
+    }
+
 }
